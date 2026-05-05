@@ -28,28 +28,70 @@ while true; do
     echo "#########################################################"
     echo ""
     echo "Menu de Escolhas:"
-    echo "  1) Opção interativa 1 (ex: Mostrar endereço IP)"
-    echo "  2) Opção interativa 2 (ex: Mostrar uso do disco)"
-    echo "  3) Opção interativa 3 (ex: Listar arquivos da pasta)"
-    echo "  4) Opção interativa 4 (ex: Mostrar usuários logados)"
+    echo "  1) Top 5 Processos que mais consomem Memória RAM"
+    echo "  2) Exibir Informações de Rede"
+    echo "  3) Contar arquivos e pastas em um diretório"
+    echo "  4) Consultar Previsão do Tempo"
     echo "  5) Finalizar o programa."
     echo ""
     read -p "Selecione uma opção: " opcao
     case $opcao in
         1)
-            echo "Você escolheu a opção 1!"
+            clear
+            echo "[Detetive de Processos] - Top 5 Consumidores de Memória"
+            echo "---------------------------------------------------------"
+            ps aux --sort=-%mem | head -n 6
+            echo ""
             read -p "Pressione ENTER para voltar ao menu..."
             ;;
         2)
-            echo "Você escolheu a opção 2!"
+            clear
+            echo "[Informações de Rede e Conectividade]"
+            echo "---------------------------------------------------------"
+            echo "Aguarde, coletando dados da rede..."
+            IP_LOCAL=$(hostname -I | awk '{print $1}')
+            IP_PUBLICO=$(curl -s --max-time 3 ifconfig.me)
+            if ping -c 1 8.8.8.8 > /dev/null 2>&1; then
+                STATUS_NET="✅ Conectado à Internet"
+            else
+                STATUS_NET="❌ Sem conexão com a Internet"
+            fi
+            echo "---------------------------------------------------------"
+            echo "📡 Status       : $STATUS_NET"
+            echo "🏠 IP Local     : ${IP_LOCAL:-'Não encontrado'}"
+            echo "🌍 IP Público   : ${IP_PUBLICO:-'Não encontrado'}"
+            echo "---------------------------------------------------------"
+            echo ""
             read -p "Pressione ENTER para voltar ao menu..."
             ;;
         3)
-            echo "Você escolheu a opção 3!"
+            clear
+            echo "[Contador de Arquivos e Pastas]"
+            echo "---------------------------------------------------------"
+            read -p "Digite o caminho do diretório (ex: /etc ou ~): " dir_alvo
+            if [ -d "$dir_alvo" ]; then
+                qtd_arquivos=$(find "$dir_alvo" -type f 2>/dev/null | wc -l)
+                qtd_pastas=$(find "$dir_alvo" -type d 2>/dev/null | wc -l)
+                qtd_pastas=$((qtd_pastas - 1))
+                echo "---------------------------------------------------------"
+                echo "📊 Resumo do diretório: $dir_alvo"
+                echo "📄 Arquivos: $qtd_arquivos"
+                echo "📁 Subdiretórios: $qtd_pastas"
+            else
+                echo "❌ Erro: O diretório '$dir_alvo' não existe ou você não tem permissão."
+            fi
+            echo "---------------------------------------------------------"
+            echo ""
             read -p "Pressione ENTER para voltar ao menu..."
             ;;
         4)
-            echo "Você escolheu a opção 4!"
+            clear
+            echo "Previsão do Tempo no Terminal]"
+            echo "---------------------------------------------------------"
+            read -p "Digite sua cidade (ou aperte ENTER para pegar local automático): " cidade
+            cidade_formatada=$(echo "$cidade" | tr ' ' '+')
+            curl -s "wttr.in/${cidade_formatada}?0&lang=pt"
+            echo "---------------------------------------------------------"
             read -p "Pressione ENTER para voltar ao menu..."
             ;;
         5)
