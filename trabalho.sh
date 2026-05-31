@@ -28,38 +28,71 @@ while true; do
     echo "#########################################################"
     echo ""
     echo "Menu de Escolhas:"
-    echo "  1) Top 5 Processos que mais consomem Memória RAM"
-    echo "  2) Exibir Informações de Rede"
+    echo "  1) Simular Backup e Restauração (tar)"
+    echo "  2) Auditor de Permissões (Segurança)"
     echo "  3) Contar arquivos e pastas em um diretório"
-    echo "  4) Consultar Previsão do Tempo"
+    echo "  4) Gerenciador de Processos (Finalizar Tarefa)"
     echo "  5) Finalizar o programa."
     echo ""
     read -p "Selecione uma opção: " opcao
     case $opcao in
         1)
             clear
-            echo "[Detetive de Processos] - Top 5 Consumidores de Memória"
+            echo "[Simulação de Backup e Restauração]"
             echo "---------------------------------------------------------"
-            ps aux --sort=-%mem | head -n 6
+            DIR_LAB="lab_backup_$(date +%s)"
+            echo "1. Criando diretório de teste: $DIR_LAB"
+            mkdir "$DIR_LAB"
+            echo "2. Criando arquivos de texto..."
+            echo "Conteúdo do arquivo 1" > "$DIR_LAB/doc1.txt"
+            echo "Conteúdo do arquivo 2" > "$DIR_LAB/doc2.txt"
+            ls -l "$DIR_LAB"
+            echo ""
+            echo "3. Compactando arquivos com 'tar'..."
+            tar -cvf backup_lab.tar "$DIR_LAB"
+            echo "✅ Backup 'backup_lab.tar' criado com sucesso."
+            echo ""
+            echo "4. Deletando o diretório original..."
+            rm -rf "$DIR_LAB"
+            echo "❓ Verificando: O diretório existe? $([ -d "$DIR_LAB" ] && echo "Sim" || echo "Não")"
+            echo ""
+            read -p "Pressione ENTER para restaurar do backup..."
+            echo ""
+            echo "5. Restaurando arquivos..."
+            tar -xvf backup_lab.tar
+            echo "Concluída."
+            ls -l "$DIR_LAB"
+            rm -f backup_lab.tar
+            rm -rf "$DIR_LAB"
+            echo "---------------------------------------------------------"
             echo ""
             read -p "Pressione ENTER para voltar ao menu..."
             ;;
         2)
             clear
-            echo "[Informações de Rede e Conectividade]"
+            echo "[Auditor de Permissões de Segurança]"
             echo "---------------------------------------------------------"
-            echo "Aguarde, coletando dados da rede..."
-            IP_LOCAL=$(hostname -I | awk '{print $1}')
-            IP_PUBLICO=$(curl -s --max-time 3 ifconfig.me)
-            if ping -c 1 8.8.8.8 > /dev/null 2>&1; then
-                STATUS_NET="✅ Conectado à Internet"
+            read -p "Digite o caminho de um arquivo ou pasta para auditar: " alvo
+            if [ -e "$alvo" ]; then
+                perms=$(stat -c "%a" "$alvo")
+                echo "Permissões atuais: $perms"
+                if [ "$perms" -eq 777 ]; then
+                    echo "⚠️ste item tem permissões totais (777) Altamente inseguro."
+                    read -p "Deseja corrigir para 755 (diretório) ou 644 (arquivo)? (s/n): " fix
+                    if [ "$fix" == "s" ]; then
+                        if [ -d "$alvo" ]; then
+                            chmod 755 "$alvo"
+                        else
+                            chmod 644 "$alvo"
+                        fi
+                        echo "✅ Permissões ajustadas."
+                    fi
+                else
+                    echo "✅ As permissões parecem seguras."
+                fi
             else
-                STATUS_NET="❌ Sem conexão com a Internet"
+                echo "❌ Erro: Arquivo ou diretório não encontrado."
             fi
-            echo "---------------------------------------------------------"
-            echo "📡 Status       : $STATUS_NET"
-            echo "🏠 IP Local     : ${IP_LOCAL:-'Não encontrado'}"
-            echo "🌍 IP Público   : ${IP_PUBLICO:-'Não encontrado'}"
             echo "---------------------------------------------------------"
             echo ""
             read -p "Pressione ENTER para voltar ao menu..."
@@ -86,11 +119,20 @@ while true; do
             ;;
         4)
             clear
-            echo "Previsão do Tempo no Terminal]"
+            echo "[Gerenciador de Processos]"
             echo "---------------------------------------------------------"
-            read -p "Digite sua cidade (ou aperte ENTER para pegar local automático): " cidade
-            cidade_formatada=$(echo "$cidade" | tr ' ' '+')
-            curl -s "wttr.in/${cidade_formatada}?0&lang=pt"
+            echo "Top 10 processos por CPU:"
+            ps aux --sort=-%cpu | head -n 11
+            echo "---------------------------------------------------------"
+            read -p "Deseja finalizar algum processo? Digite o PID ou pressione ENTER para sair: " pid_kill
+            if [ ! -z "$pid_kill" ]; then
+                if kill -0 "$pid_kill" 2>/dev/null; then
+                    kill "$pid_kill"
+                    echo "✅ Sinal enviado para o processo $pid_kill."
+                else
+                    echo "❌ Erro: PID $pid_kill inválido ou você não tem permissão."
+                fi
+            fi
             echo "---------------------------------------------------------"
             read -p "Pressione ENTER para voltar ao menu..."
             ;;
