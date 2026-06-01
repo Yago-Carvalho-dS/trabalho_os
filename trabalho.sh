@@ -50,11 +50,11 @@ while true; do
             echo ""
             echo "3. Compactando arquivos com 'tar'..."
             tar -cvf backup_lab.tar "$DIR_LAB"
-            echo "✅ Backup 'backup_lab.tar' criado com sucesso."
+            echo "Backup 'backup_lab.tar' criado com sucesso."
             echo ""
             echo "4. Deletando o diretório original..."
             rm -rf "$DIR_LAB"
-            echo "❓ Verificando: O diretório existe? $([ -d "$DIR_LAB" ] && echo "Sim" || echo "Não")"
+            echo "Verificando: O diretório existe? $([ -d "$DIR_LAB" ] && echo "Sim" || echo "Não")"
             echo ""
             read -p "Pressione ENTER para restaurar do backup..."
             echo ""
@@ -77,7 +77,7 @@ while true; do
                 perms=$(stat -c "%a" "$alvo")
                 echo "Permissões atuais: $perms"
                 if [ "$perms" -eq 777 ]; then
-                    echo "⚠️ste item tem permissões totais (777) Altamente inseguro."
+                    echo "Este item tem permissões totais (777) Altamente inseguro."
                     read -p "Deseja corrigir para 755 (diretório) ou 644 (arquivo)? (s/n): " fix
                     if [ "$fix" == "s" ]; then
                         if [ -d "$alvo" ]; then
@@ -85,13 +85,13 @@ while true; do
                         else
                             chmod 644 "$alvo"
                         fi
-                        echo "✅ Permissões ajustadas."
+                        echo "Permissões ajustadas."
                     fi
                 else
-                    echo "✅ As permissões parecem seguras."
+                    echo "As permissões parecem seguras."
                 fi
             else
-                echo "❌ Erro: Arquivo ou diretório não encontrado."
+                echo "Erro: Arquivo ou diretório não encontrado."
             fi
             echo "---------------------------------------------------------"
             echo ""
@@ -111,7 +111,7 @@ while true; do
                 echo "📄 Arquivos: $qtd_arquivos"
                 echo "📁 Subdiretórios: $qtd_pastas"
             else
-                echo "❌ Erro: O diretório '$dir_alvo' não existe ou você não tem permissão."
+                echo "Erro: O diretório '$dir_alvo' não existe ou você não tem permissão."
             fi
             echo "---------------------------------------------------------"
             echo ""
@@ -128,9 +128,9 @@ while true; do
             if [ ! -z "$pid_kill" ]; then
                 if kill -0 "$pid_kill" 2>/dev/null; then
                     kill "$pid_kill"
-                    echo "✅ Sinal enviado para o processo $pid_kill."
+                    echo "Sinal enviado para o processo $pid_kill."
                 else
-                    echo "❌ Erro: PID $pid_kill inválido ou você não tem permissão."
+                    echo "Erro: PID $pid_kill inválido ou você não tem permissão."
                 fi
             fi
             echo "---------------------------------------------------------"
